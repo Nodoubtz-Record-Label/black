@@ -208,9 +208,9 @@ async def handle(
         return web.Response(status=400, headers=headers, text=str(e))
     except web.HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         logging.exception("Exception during handling a request")
-        return web.Response(status=500, headers=headers, text=str(e))
+        return web.Response(status=500, headers=headers, text="Internal server error")
 
 
 async def format_code(
