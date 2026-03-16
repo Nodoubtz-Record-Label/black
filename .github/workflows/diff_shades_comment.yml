@@ -22,6 +22,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Create temporary artifacts directory
+        run: mkdir -p "${{ runner.temp }}/artifacts"
+
       - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         id: artifacts
         with:
@@ -29,6 +32,7 @@ jobs:
           pattern: ".*.pr-comment.md"
           github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
+          path: ${{ runner.temp }}/artifacts
 
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -48,8 +52,9 @@ jobs:
       - name: Get details from initial workflow run
         id: metadata
         run: |
-          python scripts/diff_shades_gha_helper.py comment-details \
-          $pr $run_id $(echo .*.pr-comment.md)
+          cd "${{ runner.temp }}/artifacts"
+          python "$GITHUB_WORKSPACE/scripts/diff_shades_gha_helper.py" comment-details \
+          "$pr" "$run_id" $(echo .*.pr-comment.md)
         env:
           GITHUB_TOKEN: ${{ github.token }}
           pr: ${{ steps.pr.outputs.pr }}
